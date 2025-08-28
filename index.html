@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vedic Techno School</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="icon" type="image/png" href="https://i.postimg.cc/fLHnLJFy/logo.jpg">
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+  import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+  const firebaseConfig = {
+    apiKey: "AIzaSyDfpBWtDzloybapKmCWwwPB_wUuKiIFolw",
+    authDomain: "vedic-techno-school.firebaseapp.com",
+    projectId: "vedic-techno-school",
+    storageBucket: "vedic-techno-school.firebasestorage.app",
+    messagingSenderId: "219275468664",
+    appId: "1:219275468664:web:966b5d23412313ca5ff28d",
+    measurementId: "G-EHQKKQ8Z7N"
+  };
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+  window.addEventListener('DOMContentLoaded', () => {
+    const reviewForm = document.getElementById('reviewForm');
+    const q = query(collection(db, "reviews"), orderBy("createdAt", "desc"));
+    onSnapshot(q, (snapshot) => {
+      const allReviews = [];
+      snapshot.forEach((doc) => {
+        allReviews.push(doc.data());
+      });
+      window.renderReviews(allReviews);
+    });
+    reviewForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const name = document.getElementById('reviewerName').value.trim();
+      const rating = parseInt(document.getElementById('reviewRating').value);
+      const review = document.getElementById('reviewText').value.trim();
+      if (!name || !rating || !review) return alert('Please fill all fields.');
+      await addDoc(collection(db, "reviews"), {
+        name, rating, review, createdAt: serverTimestamp()
+      });
+      reviewForm.reset();
+    });
+    const faders = document.querySelectorAll('.fade-in');
+    const appearOptions = { threshold: 0.2, rootMargin: "0px 0px -50px 0px" };
+    const appearOnScroll = new IntersectionObserver((entries, observer)=>{
+      entries.forEach(entry=>{
+        if(entry.isIntersecting){
+          entry.target.style.animation = "fadeInElement 1s ease forwards";
+          observer.unobserve(entry.target);
+        }
+      });
+    }, appearOptions);
+    faders.forEach(fader => appearOnScroll.observe(fader));
+  });
+</script>
+<style>
+  body { font-family: sans-serif; margin:0; padding:0; opacity: 0; animation: pageFadeIn 1s ease forwards; }
+  @keyframes pageFadeIn { to { opacity: 1; } }
+  .fade-in { opacity: 0; transform: translateY(20px); }
+  @keyframes fadeInElement { to { opacity:1; transform: translateY(0); } }
+  .scrolled { background-color: #ffffff !important; box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
+  .scrolled .nav-link, .scrolled .school-name { color: #1e1b4b !important; }
+  .scrolled #menuBtn .bar { background-color: #1e1b4b !important; }
+  #menuBtn.open .bar:nth-child(1) { transform: rotate(45deg) translate(5px, 5px); }
+  #menuBtn.open .bar:nth-child(2) { opacity: 0; }
+  #menuBtn.open .bar:nth-child(3) { transform: rotate(-45deg) translate(5px, -5px); }
+  #navLinksMobile { max-height: 0; overflow: hidden; transition: max-height 0.4s ease; }
+  #navLinksMobile.open { max-height: 500px; }
+  #navLinksMobile a { display: block; padding: 12px 0; text-align: center; color: white; font-weight: bold; border-bottom: 1px solid rgba(255,255,255,0.2); }
+  @media(min-width:768px){#navLinksMobile{display:none!important;}}
+  .gallery-slide { display: none; opacity: 0; transition: opacity 1s ease-in-out; }
+  .gallery-slide.active { display: block; opacity: 1; }
+  .prev, .next { cursor: pointer; position: absolute; top: 50%; transform: translateY(-50%); padding: 10px; color: white; font-weight: bold; font-size: 24px; border-radius: 9999px; background: rgba(0,0,0,0.5); user-select: none; z-index: 10; }
+  .next { right: 10px; } .prev { left: 10px; }
+  .prev:hover, .next:hover { background: rgba(0,0,0,0.8); }
+  .dots-container { text-align: center; margin-top: 10px; }
+  .dots-container .dot { cursor: pointer; height: 12px; width: 12px; margin: 0 3px; background-color: #bbb; border-radius: 50%; display: inline-block; transition: background-color 0.6s ease; }
+  .dots-container .dot.active { background-color: #717171; }
+  .review-slide { display: none; opacity: 0; transition: opacity 0.6s ease-in-out; min-height: 150px; }
+  .review-slide.active { display: block; opacity: 1; }
+  .review-prev, .review-next {
+    cursor: pointer; position: absolute; top: 50%; transform: translateY(-50%);
+    padding: 8px 12px; color: #374151; font-weight: bold; font-size: 20px;
+    border-radius: 9999px; background: rgba(255,255,255,0.7); user-select: none; z-index: 10;
+  }
+  .review-prev { left: 10px; }
+  .review-next { right: 10px; }
+  .review-prev:hover, .review-next:hover { background: rgba(255,255,255,1); }
+  .review-dots .dot {
+    cursor: pointer; height: 12px; width: 12px; margin: 0 3px;
+    background-color: #bbb; border-radius: 50%; display: inline-block;
+    transition: background-color 0.6s ease;
+  }
+  .review-dots .dot.active { background-color: #717171; }
+  .floating-btn { position: fixed; bottom: 20px; left: 20px; z-index: 1000; }
+  .floating-btn img { width: 50px; height: 50px; border-radius: 50%; box-shadow: 0 4px 6px rgba(0,0,0,0.2); transition: transform 0.2s ease; cursor:pointer; }
+  .floating-btn img:hover { transform: scale(1.1); }
+  .back-to-top { position: fixed; bottom: 20px; right: 20px; width: 50px; height: 50px; background-color: #2563eb; border-radius: 50%; display: none; justify-content: center; align-items: center; z-index: 1000; cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.2); transition: opacity 0.3s ease, transform 0.3s ease; }
+  .back-to-top img { width: 24px; height: 24px; filter: invert(1); }
+  .back-to-top:hover { transform: scale(1.1); }
+  .social-links { display: flex; flex-wrap: wrap; justify-content: center; gap: 1.5rem; margin-top: 1.5rem; }
+  .hero-logo { height: 120px; width: 120px; transition: height 0.3s, width 0.3s; margin-bottom: 1.25rem; }
+  @media (max-width: 1024px){ .hero-logo { height: 90px; width: 90px; } }
+  @media (max-width: 768px){ .hero-logo { height: 60px; width: 60px; } }
+</style>
+</head>
+<body>
+<nav id="navbar" class="fixed w-full bg-transparent z-50 transition duration-300">
+  <div class="max-w-7xl mx-auto px-4 flex justify-between items-center h-16 relative">
+    <a href="#home" class="flex items-center space-x-3">
+      <img src="https://i.postimg.cc/fLHnLJFy/logo.jpg" alt="School Logo" class="h-10 w-10 rounded-full">
+      <span class="school-name font-bold text-lg text-white">Vedic Techno School</span>
+    </a>
+    <div id="navLinksDesktop" class="hidden md:flex space-x-4">
+      <a href="#home" class="nav-link text-white hover:text-pink-500 font-semibold">Home</a>
+      <a href="#about" class="nav-link text-white hover:text-green-500 font-semibold">About</a>
+      <a href="#facilities" class="nav-link text-white hover:text-purple-500 font-semibold">Facilities</a>
+      <a href="#gallery" class="nav-link text-white hover:text-blue-500 font-semibold">Gallery</a>
+      <a href="#reviews" class="nav-link text-white hover:text-yellow-500 font-semibold">Reviews</a>
+      <a href="#contact" class="nav-link text-white hover:text-orange-500 font-semibold">Contact Us</a>
+    </div>
+    <div class="md:hidden z-50">
+      <button id="menuBtn" class="text-white focus:outline-none relative flex flex-col justify-between items-center" style="width:24px; height:24px;">
+        <span class="bar block w-full h-1 bg-white rounded transition-all duration-300"></span>
+        <span class="bar block w-full h-1 bg-white rounded transition-all duration-300"></span>
+        <span class="bar block w-full h-1 bg-white rounded transition-all duration-300"></span>
+      </button>
+    </div>
+  </div>
+  <div id="navLinksMobile" class="flex-col md:hidden bg-indigo-900 w-full text-center">
+    <a href="#home">Home</a>
+    <a href="#about">About</a>
+    <a href="#facilities">Facilities</a>
+    <a href="#gallery">Gallery</a>
+    <a href="#reviews">Reviews</a>
+    <a href="#contact">Contact Us</a>
+  </div>
+</nav>
+<section id="home" class="relative h-screen flex items-center justify-center text-center text-white fade-in">
+  <div class="absolute inset-0">
+    <img src="https://i.postimg.cc/4yMD6jXT/Whats-App-Image-2025-08-19-at-3-42-22-PM.jpg" alt="Vedic Techno School Building" class="w-full h-full object-cover">
+    <div class="absolute inset-0 bg-gradient-to-r from-indigo-900/70 via-blue-900/70 to-pink-800/70"></div>
+  </div>
+  <div class="relative z-10 max-w-3xl px-4">
+    <img src="https://i.postimg.cc/fLHnLJFy/logo.jpg" alt="Vedic Techno School Logo" class="hero-logo mx-auto rounded-full fade-in">
+    <h1 class="text-3xl md:text-4xl sm:text-3xl font-extrabold mb-4 text-yellow-300 fade-in">Welcome to Vedic Techno School</h1>
+    <p class="text-lg mb-6 text-gray-200 fade-in">Play Group ➝ Nursery ➝ Class 10 (CBSE Pattern) | Smart Learning | Dance | Music | Yoga | Taekwondo | Hostel Cum Day Boarding</p>
+    <a href="#about" class="bg-yellow-400 text-blue-900 px-6 py-3 rounded-full font-semibold hover:bg-yellow-300 transition fade-in">Learn More</a>
+  </div>
+</section>
+<section id="about" class="py-16 bg-gradient-to-r from-purple-100 to-pink-100 text-center fade-in">
+  <h2 class="text-4xl font-bold mb-6 text-indigo-900 fade-in">About Us</h2>
+  <p class="max-w-3xl mx-auto text-lg text-gray-700 fade-in">
+    Vedic Techno School is a premier institution providing education from <b>Pre-Nursery to Class 10</b>
+    under the CBSE pattern. With a focus on <b>holistic learning</b>, we combine modern technology
+    with traditional values, ensuring the all-round development of every student.
+  </p>
+</section>
+<section id="facilities" class="py-16 text-center bg-white fade-in">
+  <h2 class="text-4xl font-bold mb-6 text-indigo-900 fade-in">Our Facilities</h2>
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto px-4">
+    <div class="bg-gradient-to-br from-indigo-100 to-blue-50 p-6 rounded-2xl shadow-lg fade-in">
+      <h3 class="font-semibold text-xl mb-2 text-indigo-800">Smart Classrooms</h3>
+      <p class="text-gray-700">Digital learning with interactive smart boards and audio-visual support.</p>
+    </div>
+    <div class="bg-gradient-to-br from-pink-100 to-red-50 p-6 rounded-2xl shadow-lg fade-in">
+      <h3 class="font-semibold text-xl mb-2 text-pink-800">Hostel with AC Rooms</h3>
+      <p class="text-gray-700">Comfortable and modern hostel facilities with air-conditioned rooms.</p>
+    </div>
+    <div class="bg-gradient-to-br from-green-100 to-teal-50 p-6 rounded-2xl shadow-lg fade-in">
+      <h3 class="font-semibold text-xl mb-2 text-green-800">Sports & Activities</h3>
+      <p class="text-gray-700">Yoga, Taekwondo, Music, Dance, Art & Craft for overall student growth.</p>
+    </div>
+    <div class="bg-gradient-to-br from-yellow-100 to-orange-50 p-6 rounded-2xl shadow-lg fade-in md:col-span-3">
+      <h3 class="font-semibold text-xl mb-2 text-yellow-800">Practical Lab Based Learning</h3>
+      <p class="text-gray-700">Hands-on experiments in Science, Computer, and Mathematics labs to strengthen practical knowledge and innovation starting from Nursery to Class 10.</p>
+    </div>
+  </div>
+</section>
+<section id="gallery" class="py-16 bg-gradient-to-r from-blue-50 to-indigo-50 text-center fade-in">
+  <h2 class="text-4xl font-bold mb-6 text-indigo-900 fade-in">Gallery</h2>
+  <div class="relative max-w-4xl mx-auto rounded-xl overflow-hidden shadow-lg fade-in">
+    <div class="gallery-slide active"><img src="https://i.postimg.cc/1XfxNyhH/Whats-App-Image-2025-08-28-at-9-34-22-AM.jpg" loading="lazy" alt="School Image 1" class="w-full rounded-xl"></div>
+    <div class="gallery-slide"><img src="https://i.postimg.cc/cH1G0QFP/Whats-App-Image-2025-08-28-at-9-34-22-AM-1.jpg" loading="lazy" alt="School Image 2" class="w-full rounded-xl"></div>
+    <div class="gallery-slide"><img src="https://i.postimg.cc/257NsH74/Whats-App-Image-2025-08-28-at-9-34-22-AM-2.jpg" loading="lazy" alt="School Image 3" class="w-full rounded-xl"></div>
+    <div class="gallery-slide"><img src="https://i.postimg.cc/fbNhg4mz/Whats-App-Image-2025-08-28-at-9-34-23-AM.jpg" loading="lazy" alt="School Image 4" class="w-full rounded-xl"></div>
+    <div class="gallery-slide"><img src="https://i.postimg.cc/DwsTgfWp/Whats-App-Image-2025-08-28-at-9-34-23-AM-1.jpg" loading="lazy" alt="School Image 5" class="w-full rounded-xl"></div>
+    <div class="gallery-slide"><img src="https://i.postimg.cc/3Jzhm0wD/Whats-App-Image-2025-08-28-at-9-34-28-AM.jpg" loading="lazy" alt="School Image 6" class="w-full rounded-xl"></div>
+    <div class="gallery-slide"><img src="https://i.postimg.cc/dthvhjJY/Whats-App-Image-2025-08-28-at-9-34-28-AM-1.jpg" loading="lazy" alt="School Image 7" class="w-full rounded-xl"></div>
+    <div class="gallery-slide"><img src="https://i.postimg.cc/7PswPW89/Whats-App-Image-2025-08-28-at-9-34-29-AM.jpg" loading="lazy" alt="School Image 8" class="w-full rounded-xl"></div>
+    <div class="gallery-slide"><img src="https://i.postimg.cc/KjH29Rrw/Whats-App-Image-2025-08-28-at-9-34-29-AM-1.jpg" loading="lazy" alt="School Image 9" class="w-full rounded-xl"></div>
+    <div class="gallery-slide"><img src="https://i.postimg.cc/bJL8t6Gz/Whats-App-Image-2025-08-28-at-9-34-30-AM.jpg" loading="lazy" alt="School Image 10" class="w-full rounded-xl"></div>
+    <div class="gallery-slide"><img src="https://i.postimg.cc/vTByLW95/Whats-App-Image-2025-08-28-at-9-34-30-AM-1.jpg" loading="lazy" alt="School Image 11" class="w-full rounded-xl"></div>
+    <div class="gallery-slide"><img src="https://i.postimg.cc/DZ7nmVwj/Whats-App-Image-2025-08-28-at-9-34-30-AM-2.jpg" loading="lazy" alt="School Image 12" class="w-full rounded-xl"></div>
+    <div class="gallery-slide"><img src="https://i.postimg.cc/1zGy9RsV/Whats-App-Image-2025-08-28-at-9-34-31-AM.jpg" loading="lazy" alt="School Image 13" class="w-full rounded-xl"></div>
+    <div class="gallery-slide"><img src="https://i.postimg.cc/25RzRLRf/Whats-App-Image-2025-08-28-at-9-34-31-AM-1.jpg" loading="lazy" alt="School Image 14" class="w-full rounded-xl"></div>
+    <div class="gallery-slide"><img src="https://i.postimg.cc/0yJ8Bd4f/Whats-App-Image-2025-08-28-at-9-34-32-AM.jpg" loading="lazy" alt="School Image 15" class="w-full rounded-xl"></div>
+    <div class="gallery-slide"><img src="https://i.postimg.cc/DyNv6Yx0/Whats-App-Image-2025-08-28-at-9-34-32-AM-1.jpg" loading="lazy" alt="School Image 16" class="w-full rounded-xl"></div>
+    <div class="gallery-slide"><img src="https://i.postimg.cc/qMqB8dXW/Whats-App-Image-2025-08-28-at-9-34-32-AM-2.jpg" loading="lazy" alt="School Image 17" class="w-full rounded-xl"></div>
+    <div class="gallery-slide"><img src="https://i.postimg.cc/v83Hgm9W/Whats-App-Image-2025-08-28-at-9-34-33-AM.jpg" loading="lazy" alt="School Image 18" class="w-full rounded-xl"></div>
+    <div class="gallery-slide"><img src="https://i.postimg.cc/yxQVwfBf/Whats-App-Image-2025-08-28-at-9-34-33-AM-1.jpg" loading="lazy" alt="School Image 19" class="w-full rounded-xl"></div>
+    <div class="gallery-slide"><img src="https://i.postimg.cc/kGXJYrr6/Whats-App-Image-2025-08-28-at-9-34-34-AM.jpg" loading="lazy" alt="School Image 20" class="w-full rounded-xl"></div>
+    <div class="gallery-slide"><img src="https://i.postimg.cc/cHc1cxzG/Whats-App-Image-2025-08-28-at-9-34-34-AM-1.jpg" loading="lazy" alt="School Image 21" class="w-full rounded-xl"></div>
+    <div class="gallery-slide"><img src="https://i.postimg.cc/qRrMnhjG/Whats-App-Image-2025-08-28-at-9-34-34-AM-2.jpg" loading="lazy" alt="School Image 22" class="w-full rounded-xl"></div>
+    <div class="gallery-slide"><img src="https://i.postimg.cc/YCJSryFZ/Whats-App-Image-2025-08-28-at-9-34-35-AM.jpg" loading="lazy" alt="School Image 23" class="w-full rounded-xl"></div>
+    <div class="gallery-slide"><img src="https://i.postimg.cc/DzLw8ddZ/Whats-App-Image-2025-08-28-at-9-34-35-AM-1.jpg" loading="lazy" alt="School Image 24" class="w-full rounded-xl"></div>
+    <div class="gallery-slide"><img src="https://i.postimg.cc/YC49wwvQ/Whats-App-Image-2025-08-28-at-9-34-36-AM.jpg" loading="lazy" alt="School Image 25" class="w-full rounded-xl"></div>
+    <div class="gallery-slide"><img src="https://i.postimg.cc/5NK0Gt2x/Whats-App-Image-2025-08-28-at-9-34-36-AM-1.jpg" loading="lazy" alt="School Image 26" class="w-full rounded-xl"></div>
+    <div class="gallery-slide"><img src="https://i.postimg.cc/TY31CbG7/Whats-App-Image-2025-08-28-at-9-34-37-AM.jpg" loading="lazy" alt="School Image 27" class="w-full rounded-xl"></div>
+    <div class="gallery-slide"><img src="https://i.postimg.cc/wxV3X2KR/Whats-App-Image-2025-08-28-at-9-34-37-AM-1.jpg" loading="lazy" alt="School Image 28" class="w-full rounded-xl"></div>
+    <div class="gallery-slide"><img src="https://i.postimg.cc/x8tC9fG3/Whats-App-Image-2025-08-28-at-9-34-38-AM.jpg" loading="lazy" alt="School Image 29" class="w-full rounded-xl"></div>
+    <div class="gallery-slide"><img src="https://i.postimg.cc/fywy4tdb/Whats-App-Image-2025-08-28-at-9-34-38-AM-1.jpg" loading="lazy" alt="School Image 30" class="w-full rounded-xl"></div>
+    <div class="gallery-slide"><img src="https://i.postimg.cc/MGQv18xz/Whats-App-Image-2025-08-28-at-9-34-39-AM.jpg" loading="lazy" alt="School Image 31" class="w-full rounded-xl"></div>
+    <div class="gallery-slide"><img src="https://i.postimg.cc/4dRn5FNV/Whats-App-Image-2025-08-28-at-9-34-39-AM-1.jpg" loading="lazy" alt="School Image 32" class="w-full rounded-xl"></div>
+    <div class="gallery-slide"><img src="https://i.postimg.cc/vB7TSLcj/Whats-App-Image-2025-08-28-at-9-34-39-AM-2.jpg" loading="lazy" alt="School Image 33" class="w-full rounded-xl"></div>
+    <div class="gallery-slide"><img src="https://i.postimg.cc/Bnyj8nrh/Whats-App-Image-2025-08-28-at-9-34-40-AM.jpg" loading="lazy" alt="School Image 34" class="w-full rounded-xl"></div>
+    <div class="gallery-slide"><img src="https://i.postimg.cc/jSCWd7Fw/Whats-App-Image-2025-08-28-at-9-34-40-AM-1.jpg" loading="lazy" alt="School Image 35" class="w-full rounded-xl"></div>
+    <a class="prev">❮</a>
+    <a class="next">❯</a>
+  </div>
+  <div class="dots-container">
+    <span class="dot active"></span>
+    <span class="dot"></span>
+    <span class="dot"></span>
+    <span class="dot"></span>
+    <span class="dot"></span>
+    <span class="dot"></span>
+    <span class="dot"></span>
+  </div>
+</section>
+<section id="reviews" class="py-16 bg-gradient-to-r from-yellow-50 to-orange-50 text-center fade-in">
+  <h2 class="text-4xl font-bold mb-6 text-indigo-900">Reviews & Ratings</h2>
+  <div class="max-w-2xl mx-auto bg-white p-8 rounded-2xl shadow-lg mb-12">
+    <h3 class="text-2xl font-semibold mb-4 text-indigo-900">Leave a Review</h3>
+    <form id="reviewForm" class="space-y-4">
+      <input type="text" id="reviewerName" placeholder="Your Name" class="w-full border p-3 rounded-lg" required>
+      <select id="reviewRating" class="w-full border p-3 rounded-lg" required>
+        <option value="">Select Rating ⭐</option>
+        <option value="5">⭐⭐⭐⭐⭐ (Excellent)</option>
+        <option value="4">⭐⭐⭐⭐ (Very Good)</option>
+        <option value="3">⭐⭐⭐ (Good)</option>
+        <option value="2">⭐⭐ (Fair)</option>
+        <option value="1">⭐ (Poor)</option>
+      </select>
+      <textarea id="reviewText" placeholder="Your Review" class="w-full border p-3 rounded-lg" rows="4" required></textarea>
+      <button type="submit" class="bg-indigo-500 text-white px-6 py-3 rounded-full font-semibold hover:bg-indigo-400 transition">Submit Review</button>
+    </form>
+  </div>
+  <div class="relative max-w-3xl mx-auto p-4 text-left">
+    <div id="reviewsList" class="relative overflow-hidden">
+      </div>
+    <a class="review-prev">❮</a>
+    <a class="review-next">❯</a>
+  </div>
+  <div class="review-dots text-center mt-4"></div>
+</section>
+<section id="contact" class="py-16 bg-gradient-to-r from-blue-100 to-indigo-100 text-center fade-in">
+    <div class="max-w-2xl mx-auto bg-white p-8 rounded-2xl shadow-lg mb-12 fade-in">
+        <h3 class="text-2xl font-semibold mb-6 text-indigo-900">Enquiry Form</h3>
+        <form id="enquiryForm" action="https://formspree.io/f/movlolwa" method="POST" class="space-y-4">
+            <input type="text" name="name" placeholder="Your Name" class="w-full border p-3 rounded-lg" required>
+            <input type="email" name="email" placeholder="Your Email" class="w-full border p-3 rounded-lg" required>
+            <input type="text" name="phone" placeholder="Your Phone" class="w-full border p-3 rounded-lg" required>
+            <div class="flex flex-col md:flex-row md:gap-4">
+                <select name="class" class="border p-2 rounded-lg md:flex-1" required>
+                    <option>Select Class</option>
+                    <option>Pre-Nursery (+2 Yrs.)</option>
+                    <option>Nursery (+3 Yrs.)</option>
+                    <option>LKG</option>
+                    <option>UKG</option>
+                    <option>Class 1</option>
+                    <option>Class 2</option>
+                    <option>Class 3</option>
+                    <option>Class 4</option>
+                    <option>Class 5</option>
+                    <option>Class 6</option>
+                    <option>Class 7</option>
+                    <option>Class 8</option>
+                    <option>Class 9</option>
+                    <option>Class 10</option>
+                </select>
+                <div class="border p-2 rounded-lg md:flex-1 flex items-center mt-4 md:mt-0">
+                    <span class="font-semibold mr-6">Hostel</span>
+                    <label class="flex items-center cursor-pointer mr-4">
+                        <input type="radio" name="hostel" value="Yes" class="hidden peer" required>
+                        <span class="px-4 py-2 rounded-lg border border-gray-300 peer-checked:bg-indigo-500 peer-checked:text-white transition">Yes</span>
+                    </label>
+                    <label class="flex items-center cursor-pointer">
+                        <input type="radio" name="hostel" value="No" class="hidden peer">
+                        <span class="px-4 py-2 rounded-lg border border-gray-300 peer-checked:bg-indigo-500 peer-checked:text-white transition">No</span>
+                    </label>
+                </div>
+            </div>
+            <textarea name="message" placeholder="Your Message" class="w-full border p-3 rounded-lg" rows="4" required></textarea>
+            <button type="submit" id="enquirySubmitBtn" class="bg-indigo-500 text-white px-6 py-3 rounded-full font-semibold hover:bg-indigo-400 transition">Submit</button>
+            <div id="enquiryStatus" class="mt-4 text-center"></div>
+        </form>
+    </div>
+    <h2 class="text-4xl font-bold mb-6 text-indigo-900 fade-in">Contact Us</h2>
+    <p class="mb-2 fade-in">📍 Block Chhak, Pipili, Puri, Odisha – 752104</p>
+    <p class="mb-2 fade-in">📞 Phone: +91 9861180727</p>
+    <p class="mb-4 fade-in">✉️ Email: <a href="mailto:vedictechnoschool@gmail.com" class="text-blue-600 underline">vedictechnoschool@gmail.com</a></p>
+    <a href="https://maps.app.goo.gl/hGbqLsFnC3S2FfYLA" target="_blank" class="text-blue-600 underline fade-in">View on Google Maps</a>
+    <div class="social-links fade-in">
+        <a href="https://www.facebook.com/share/19yN3LsXX1/" target="_blank" class="flex items-center space-x-2">
+            <img src="https://cdn-icons-png.flaticon.com/512/124/124010.png" alt="Facebook" class="h-8 w-8">
+            <span>@vedictechnoschool</span>
+        </a>
+        <a href="https://www.instagram.com/vedictechnoschool" target="_blank" class="flex items-center space-x-2">
+            <img src="https://cdn-icons-png.flaticon.com/512/1384/1384063.png" alt="Instagram" class="h-8 w-8">
+            <span>@vedictechnoschool</span>
+        </a>
+        <a href="http://www.youtube.com/@VedicTechnoSchool" target="_blank" class="flex items-center space-x-2">
+            <img src="https://cdn-icons-png.flaticon.com/512/1384/1384060.png" alt="YouTube" class="h-8 w-8">
+            <span>@VedicTechnoSchool</span>
+        </a>
+    </div>
+</section>
+<footer class="bg-indigo-900 text-white text-center py-6 fade-in">
+  <p>© 2025 Vedic Techno School. All Rights Reserved.</p>
+</footer>
+<div class="floating-btn">
+  <a href="https://wa.me/919861180727" target="_blank">
+    <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" alt="WhatsApp Chat">
+  </a>
+</div>
+<div class="back-to-top" onclick="scrollToTop()">
+  <img src="https://cdn-icons-png.flaticon.com/512/130/130906.png" alt="Back to Top">
+</div>
+<script>
+  const navbar = document.getElementById("navbar");
+  const menuBtn = document.getElementById("menuBtn");
+  window.addEventListener("scroll", () => {
+    if(window.scrollY > 50){
+      navbar.classList.add("scrolled");
+      menuBtn.querySelectorAll('.bar').forEach(bar => bar.classList.add('bg-[#1e1b4b]'));
+    } else{
+      navbar.classList.remove("scrolled");
+      menuBtn.querySelectorAll('.bar').forEach(bar => bar.classList.remove('bg-[#1e1b4b]'));
+    }
+  });
+  const navLinksMobile = document.getElementById("navLinksMobile");
+  menuBtn.addEventListener("click", () => { navLinksMobile.classList.toggle("open"); menuBtn.classList.toggle("open"); });
+  navLinksMobile.querySelectorAll("a").forEach(link => link.addEventListener("click", () => { navLinksMobile.classList.remove("open"); menuBtn.classList.remove("open"); }));
+  const backToTop = document.querySelector('.back-to-top');
+  window.addEventListener('scroll', () => { backToTop.style.display = window.scrollY > 100 ? 'flex' : 'none'; });
+  function scrollToTop(){ window.scrollTo({top:0, behavior:'smooth'}); }
+  let slideIndex = 0;
+  const gallerySlides = document.getElementsByClassName("gallery-slide");
+  const galleryDots = document.querySelector(".dots-container").getElementsByClassName("dot");
+  const prev = document.querySelector(".prev");
+  const next = document.querySelector(".next");
+  function showSlides(n) {
+    if (n >= gallerySlides.length) slideIndex = 0;
+    if (n < 0) slideIndex = gallerySlides.length - 1;
+    for (let i = 0; i < gallerySlides.length; i++) gallerySlides[i].classList.remove("active");
+    gallerySlides[slideIndex].classList.add("active");
+    const dotIndex = Math.floor(slideIndex / 5);
+    for (let i = 0; i < galleryDots.length; i++) galleryDots[i].classList.remove("active");
+    galleryDots[dotIndex].classList.add("active");
+  }
+  prev.addEventListener("click", () => { slideIndex--; showSlides(slideIndex); });
+  next.addEventListener("click", () => { slideIndex++; showSlides(slideIndex); });
+  for (let i = 0; i < galleryDots.length; i++) {
+    galleryDots[i].addEventListener("click", () => { slideIndex = i*5; showSlides(slideIndex); });
+  }
+  let startX = 0;
+  const gallery = document.querySelector(".gallery-slide").parentElement;
+  gallery.addEventListener('touchstart', e => startX = e.touches[0].clientX);
+  gallery.addEventListener('touchend', e => {
+    let endX = e.changedTouches[0].clientX;
+    if(startX-endX>50){ slideIndex++; showSlides(slideIndex); }
+    else if(endX-startX>50){ slideIndex--; showSlides(slideIndex); }
+  });
+  setInterval(()=>{ slideIndex++; showSlides(slideIndex); }, 3000);
+  showSlides(slideIndex);
+  let reviewIndex = 0;
+  let reviewSlides = [];
+  let reviewDots = [];
+  let reviewAutoSlideInterval;
+  const reviewContainer = document.getElementById("reviewsList");
+  const reviewDotsContainer = document.querySelector(".review-dots");
+  const prevReview = document.querySelector(".review-prev");
+  const nextReview = document.querySelector(".review-next");
+  function showReviewSlide(n) {
+    if (!reviewSlides.length) return; // Don't run if there are no reviews
+    if (n >= reviewSlides.length) reviewIndex = 0;
+    if (n < 0) reviewIndex = reviewSlides.length - 1;
+    reviewSlides.forEach(s => s.classList.remove("active"));
+    reviewDots.forEach(d => d.classList.remove("active"));
+    reviewSlides[reviewIndex].classList.add("active");
+    reviewDots[reviewIndex].classList.add("active");
+  }
+  window.renderReviews = function(data) {
+    reviewContainer.innerHTML = "";
+    reviewDotsContainer.innerHTML = "";
+    if (reviewAutoSlideInterval) clearInterval(reviewAutoSlideInterval);
+    reviewSlides = [];
+    reviewDots = [];
+    if (data.length === 0) {
+        reviewContainer.innerHTML = `<p class="text-gray-500 text-center">Be the first to leave a review!</p>`;
+        prevReview.style.display = 'none';
+        nextReview.style.display = 'none';
+        return;
+    }
+    prevReview.style.display = 'block';
+    nextReview.style.display = 'block';
+    data.forEach((r, i) => {
+  const slide = document.createElement("div");
+  slide.className = "review-slide bg-white p-6 rounded-lg shadow-md relative"; // make relative for timestamp positioning
+  const createdAt = r.createdAt ? r.createdAt.toDate() : new Date(); // fallback if missing
+  const timestampStr = createdAt.toLocaleDateString('en-IN', {
+    day: '2-digit', month: 'short', year: 'numeric',
+    hour: '2-digit', minute: '2-digit'
+  });
+  slide.innerHTML = `
+    <div class="flex items-center">
+        <p class="font-semibold text-indigo-900">${r.name}</p>
+        <div class="ml-2" role="img" aria-label="${r.rating} out of 5 stars">
+            <span class="text-yellow-500">${"★".repeat(r.rating)}</span><span class="text-gray-300">${"☆".repeat(5 - r.rating)}</span>
+        </div>
+    </div>
+    <p class="text-gray-700 mt-2 text-left italic">"${r.review}"</p>
+    <p class="text-gray-400 text-sm absolute bottom-2 right-3">${timestampStr}</p>
+  `;
+  reviewContainer.appendChild(slide);
+  reviewSlides.push(slide);
+  const dot = document.createElement("span");
+  dot.className = "dot";
+  dot.addEventListener("click", () => {
+    reviewIndex = i;
+    showReviewSlide(reviewIndex);
+  });
+  reviewDotsContainer.appendChild(dot);
+  reviewDots.push(dot);
+});
+    reviewIndex = 0;
+    showReviewSlide(reviewIndex);
+    reviewAutoSlideInterval = setInterval(() => {
+      reviewIndex++;
+      showReviewSlide(reviewIndex);
+    }, 5000);
+  }
+  prevReview.addEventListener("click", () => {
+    reviewIndex--;
+    showReviewSlide(reviewIndex);
+  });
+  nextReview.addEventListener("click", () => {
+    reviewIndex++;
+    showReviewSlide(reviewIndex);
+  });
+  let reviewStartX = 0;
+  reviewContainer.addEventListener("touchstart", (e) => {
+    reviewStartX = e.touches[0].clientX;
+  });
+  reviewContainer.addEventListener("touchend", (e) => {
+    let reviewEndX = e.changedTouches[0].clientX;
+    if (reviewStartX - reviewEndX > 50) { 
+      reviewIndex++;
+      showReviewSlide(reviewIndex);
+    } else if (reviewEndX - reviewStartX > 50) { 
+      reviewIndex--;
+      showReviewSlide(reviewIndex);
+    }
+  });
+const enquiryForm = document.getElementById('enquiryForm');
+const enquiryStatus = document.getElementById('enquiryStatus');
+const enquirySubmitBtn = document.getElementById('enquirySubmitBtn');
+enquiryForm.addEventListener('submit', function(e) {
+    e.preventDefault();
+    const formData = new FormData(enquiryForm);
+    const originalBtnText = enquirySubmitBtn.innerHTML;
+    enquirySubmitBtn.disabled = true;
+    enquirySubmitBtn.innerHTML = 'Sending...';
+    fetch(enquiryForm.action, {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'Accept': 'application/json'
+        }
+    }).then(response => {
+        if (response.ok) {
+            enquiryStatus.innerHTML = "Thanks for your enquiry! We will get back to you soon.";
+            enquiryStatus.className = "p-3 mt-4 rounded-lg bg-green-100 text-green-800";
+            enquiryForm.reset();
+        } else {
+            response.json().then(data => {
+                if (Object.hasOwn(data, 'errors')) {
+                    enquiryStatus.innerHTML = data["errors"].map(error => error["message"]).join(", ");
+                } else {
+                    enquiryStatus.innerHTML = "Oops! There was a problem submitting your form.";
+                }
+                enquiryStatus.className = "p-3 mt-4 rounded-lg bg-red-100 text-red-800";
+            })
+        }
+    }).catch(error => {
+        enquiryStatus.innerHTML = "Oops! A network error occurred. Please try again.";
+        enquiryStatus.className = "p-3 mt-4 rounded-lg bg-red-100 text-red-800";
+    }).finally(() => {
+        enquirySubmitBtn.disabled = false;
+        enquirySubmitBtn.innerHTML = originalBtnText;
+    });
+});
+</script>
+</body>
+</html>
