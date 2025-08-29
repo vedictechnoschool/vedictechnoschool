@@ -69,8 +69,11 @@
   #navLinksMobile.open { max-height: 500px; }
   #navLinksMobile a { display: block; padding: 12px 0; text-align: center; color: white; font-weight: bold; border-bottom: 1px solid rgba(255,255,255,0.2); }
   @media(min-width:768px){#navLinksMobile{display:none!important;}}
-  .gallery-slide { display: none; opacity: 0; transition: opacity 1s ease-in-out; }
-  .gallery-slide.active { display: block; opacity: 1; }
+  .gallery-container{position:relative;width:100%;aspect-ratio:16/9;overflow:hidden}
+  .gallery-slide{position:absolute;inset:0;width:100%;height:100%;opacity:0;transition:opacity 1s}
+  .gallery-slide img{width:100%;height:100%;object-fit:cover}
+  .gallery-slide.active{opacity:1;position:relative}
+
   .prev, .next { cursor: pointer; position: absolute; top: 50%; transform: translateY(-50%); padding: 10px; color: white; font-weight: bold; font-size: 24px; border-radius: 9999px; background: rgba(0,0,0,0.5); user-select: none; z-index: 10; }
   .next { right: 10px; } .prev { left: 10px; }
   .prev:hover, .next:hover { background: rgba(0,0,0,0.8); }
@@ -180,7 +183,7 @@
 </section>
 <section id="gallery" class="py-16 bg-gradient-to-r from-blue-50 to-indigo-50 text-center fade-in">
   <h2 class="text-4xl font-bold mb-6 text-indigo-900 fade-in">Gallery</h2>
-  <div class="relative max-w-4xl mx-auto rounded-xl overflow-hidden shadow-lg fade-in">
+  <div class="gallery-container relative max-w-4xl mx-auto rounded-xl overflow-hidden shadow-lg fade-in">
     <div class="gallery-slide active"><img src="https://i.postimg.cc/1XfxNyhH/Whats-App-Image-2025-08-28-at-9-34-22-AM.jpg" loading="lazy" alt="School Image 1" class="w-full rounded-xl"></div>
     <div class="gallery-slide"><img src="https://i.postimg.cc/cH1G0QFP/Whats-App-Image-2025-08-28-at-9-34-22-AM-1.jpg" loading="lazy" alt="School Image 2" class="w-full rounded-xl"></div>
     <div class="gallery-slide"><img src="https://i.postimg.cc/257NsH74/Whats-App-Image-2025-08-28-at-9-34-22-AM-2.jpg" loading="lazy" alt="School Image 3" class="w-full rounded-xl"></div>
