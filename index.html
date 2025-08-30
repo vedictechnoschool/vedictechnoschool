@@ -80,6 +80,7 @@
   .dots-container { text-align: center; margin-top: 10px; }
   .dots-container .dot { cursor: pointer; height: 12px; width: 12px; margin: 0 3px; background-color: #bbb; border-radius: 50%; display: inline-block; transition: background-color 0.6s ease; }
   .dots-container .dot.active { background-color: #717171; }
+  #reviewsList{position:relative;overflow:hidden;transition:height .6s ease}
   .review-slide { display: none; opacity: 0; transition: opacity 0.6s ease-in-out; min-height: 150px; }
   .review-slide.active { display: block; opacity: 1; }
   .review-prev, .review-next {
@@ -387,14 +388,15 @@
   const prevReview = document.querySelector(".review-prev");
   const nextReview = document.querySelector(".review-next");
   function showReviewSlide(n) {
-    if (!reviewSlides.length) return; // Don't run if there are no reviews
-    if (n >= reviewSlides.length) reviewIndex = 0;
-    if (n < 0) reviewIndex = reviewSlides.length - 1;
-    reviewSlides.forEach(s => s.classList.remove("active"));
-    reviewDots.forEach(d => d.classList.remove("active"));
-    reviewSlides[reviewIndex].classList.add("active");
-    reviewDots[reviewIndex].classList.add("active");
-  }
+  if (!reviewSlides.length) return;
+  if (n >= reviewSlides.length) reviewIndex = 0;
+  if (n < 0) reviewIndex = reviewSlides.length - 1;
+  reviewSlides.forEach(s => s.classList.remove("active"));
+  reviewDots.forEach(d => d.classList.remove("active"));
+  reviewSlides[reviewIndex].classList.add("active");
+  reviewDots[reviewIndex].classList.add("active");
+  reviewContainer.style.height = reviewSlides[reviewIndex].offsetHeight + "px";
+}
   window.renderReviews = function(data) {
     reviewContainer.innerHTML = "";
     reviewDotsContainer.innerHTML = "";
